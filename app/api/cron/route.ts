@@ -20,11 +20,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing environment variables" }, { status: 500 });
   }
 
-  // Calculate current week
+  // Calculate current week (allow ?week=N override for manual sends)
+  const overrideWeek = req.nextUrl.searchParams.get("week");
   const start = new Date(pregnancyStartDate);
   const now = new Date();
   const msPerWeek = 1000 * 60 * 60 * 24 * 7;
-  const weekNumber = Math.floor((now.getTime() - start.getTime()) / msPerWeek) + 1;
+  const calculated = Math.floor((now.getTime() - start.getTime()) / msPerWeek) + 1;
+  const weekNumber = overrideWeek ? parseInt(overrideWeek, 10) : calculated;
 
   if (weekNumber < 1 || weekNumber > 40) {
     return NextResponse.json({ message: "Pregnancy week out of range — no SMS sent." });

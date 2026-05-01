@@ -240,7 +240,7 @@ export default function ResponseForm({
             onChange={(e) => setTextValue(e.target.value)}
             placeholder="Write your thoughts here..."
             rows={5}
-            className="w-full bg-white/60 border border-purple-200 text-purple-800 placeholder-purple-300 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
+            className="w-full bg-white/60 border border-purple-200 text-purple-800 placeholder-purple-300 rounded-2xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
           />
           <div className="flex gap-2">
             <button

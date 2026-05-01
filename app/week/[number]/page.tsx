@@ -36,10 +36,10 @@ export default async function WeekPage({ params }: PageProps) {
 
   return (
     <main
-      className={`min-h-screen bg-gradient-to-br ${weekData.bgFrom} ${weekData.bgTo} flex flex-col items-center justify-start py-10 px-4`}
+      className={`min-h-screen bg-gradient-to-br ${weekData.bgFrom} ${weekData.bgTo} flex flex-col items-center justify-start py-6 px-4`}
     >
       {/* Week badge */}
-      <div className="bg-white/50 backdrop-blur-sm border border-purple-200 rounded-full px-5 py-2 mb-8">
+      <div className="bg-white/50 backdrop-blur-sm border border-purple-200 rounded-full px-5 py-2 mb-5">
         <p className="text-purple-800 font-bold text-sm tracking-widest uppercase">
           Week {weekNumber}
         </p>
@@ -49,7 +49,7 @@ export default async function WeekPage({ params }: PageProps) {
       <DancingCharacter week={weekNumber} size={weekData.size} />
 
       {/* Baby's message */}
-      <div className="mt-8 mb-6 w-full max-w-md">
+      <div className="mt-5 mb-5 w-full max-w-md">
         <SpeechBubble message={weekData.babyMessage} />
       </div>
 

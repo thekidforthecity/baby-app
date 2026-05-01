@@ -29,37 +29,32 @@ export default async function WrappedPage() {
   const textCount = responses.filter((r) => r.text_response).length;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-rose-200 py-12 px-4">
+    <main className="min-h-screen bg-gradient-to-br from-pink-100 to-purple-200 py-10 px-4">
+
       {/* Header */}
-      <div className="max-w-2xl mx-auto text-center mb-12">
-        <p className="text-6xl mb-4">👶</p>
-        <h1 className="text-4xl font-bold text-purple-900 mb-2">
-          Your Pregnancy, Wrapped
-        </h1>
-        <p className="text-purple-700 text-lg">
-          {totalResponses} weeks of love, saved forever.
-        </p>
+      <div className="max-w-lg mx-auto text-center mb-8">
+        <p className="text-5xl mb-3">👶</p>
+        <h1 className="text-3xl font-bold text-purple-900 mb-1">Your Pregnancy, Wrapped</h1>
+        <p className="text-purple-600 text-base">{totalResponses} weeks of love, saved forever.</p>
 
         {/* Stats */}
-        <div className="flex justify-center gap-6 mt-6">
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/50">
-            <p className="text-3xl font-bold text-purple-800">{totalResponses}</p>
-            <p className="text-purple-600 text-xs uppercase tracking-wide">Weeks answered</p>
-          </div>
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/50">
-            <p className="text-3xl font-bold text-purple-800">{videoCount}</p>
-            <p className="text-purple-600 text-xs uppercase tracking-wide">Videos recorded</p>
-          </div>
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/50">
-            <p className="text-3xl font-bold text-purple-800">{textCount}</p>
-            <p className="text-purple-600 text-xs uppercase tracking-wide">Messages written</p>
-          </div>
+        <div className="flex justify-center gap-3 mt-5">
+          {[
+            { value: totalResponses, label: "Weeks answered" },
+            { value: videoCount, label: "Videos" },
+            { value: textCount, label: "Messages" },
+          ].map((s) => (
+            <div key={s.label} className="flex-1 bg-white/55 border border-purple-200 rounded-2xl py-3 px-2">
+              <p className="text-2xl font-bold text-purple-800">{s.value}</p>
+              <p className="text-purple-500 text-xs mt-0.5">{s.label}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Timeline */}
+      {/* Empty state */}
       {responses.length === 0 ? (
-        <div className="max-w-md mx-auto text-center bg-white/30 rounded-3xl p-8 border border-white/40">
+        <div className="max-w-sm mx-auto text-center bg-white/55 border border-purple-200 rounded-3xl p-8">
           <p className="text-5xl mb-3">🌱</p>
           <p className="text-purple-800 font-semibold text-lg">The journey is just beginning.</p>
           <p className="text-purple-600 text-sm mt-2">
@@ -67,7 +62,7 @@ export default async function WrappedPage() {
           </p>
         </div>
       ) : (
-        <div className="max-w-2xl mx-auto space-y-6">
+        <div className="max-w-lg mx-auto space-y-5">
           {responses.map((response) => {
             const weekData = getWeek(response.week_number);
             if (!weekData) return null;
@@ -75,58 +70,68 @@ export default async function WrappedPage() {
             return (
               <div
                 key={response.id}
-                className={`bg-gradient-to-br ${weekData.bgFrom} ${weekData.bgTo} rounded-3xl p-6 border border-white/40 shadow-sm`}
+                className="bg-white/55 backdrop-blur-sm border border-purple-200 rounded-3xl overflow-hidden shadow-sm"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-4xl">{weekData.emoji}</span>
-                  <div>
-                    <p className="text-white font-bold text-lg">Week {response.week_number}</p>
-                    <p className="text-white/70 text-sm">The size of a {weekData.size}</p>
+                {/* Week header */}
+                <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-purple-100">
+                  <span className="text-3xl">{weekData.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-purple-900 font-bold text-base">Week {response.week_number}</p>
+                    <p className="text-purple-500 text-xs">Size of a {weekData.size}</p>
                   </div>
                   <Link
                     href={`/week/${response.week_number}`}
-                    className="ml-auto text-white/60 text-xs underline"
+                    className="text-purple-400 text-xs underline underline-offset-2 shrink-0"
                   >
                     revisit
                   </Link>
                 </div>
 
-                <div className="bg-white/20 rounded-2xl px-4 py-3 mb-3">
-                  <p className="text-white/80 text-xs font-medium uppercase tracking-wide mb-1">
-                    Question
-                  </p>
-                  <p className="text-white text-sm leading-relaxed">{weekData.question}</p>
+                <div className="px-5 py-4 space-y-3">
+                  {/* Question */}
+                  <div className="bg-purple-50 border border-purple-100 rounded-2xl px-4 py-3">
+                    <p className="text-purple-400 text-xs font-semibold uppercase tracking-widest mb-1">
+                      Baby asked
+                    </p>
+                    <p className="text-purple-800 text-sm leading-relaxed">{weekData.question}</p>
+                  </div>
+
+                  {/* Text answer */}
+                  {response.text_response && (
+                    <div className="bg-white border border-purple-100 rounded-2xl px-4 py-3">
+                      <p className="text-purple-400 text-xs font-semibold uppercase tracking-widest mb-1">
+                        ✍️ Mama wrote
+                      </p>
+                      <p className="text-purple-900 text-sm leading-relaxed whitespace-pre-wrap">
+                        {response.text_response}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Video answer */}
+                  {response.video_url && (
+                    <div>
+                      <p className="text-purple-400 text-xs font-semibold uppercase tracking-widest mb-2">
+                        🎥 Mama recorded
+                      </p>
+                      <div className="rounded-2xl overflow-hidden bg-black aspect-video">
+                        <video
+                          src={response.video_url}
+                          controls
+                          playsInline
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                {response.text_response && (
-                  <div className="bg-white/30 rounded-2xl px-4 py-3">
-                    <p className="text-white/80 text-xs font-medium uppercase tracking-wide mb-1">
-                      ✍️ Response
-                    </p>
-                    <p className="text-white text-sm leading-relaxed whitespace-pre-wrap">
-                      {response.text_response}
-                    </p>
-                  </div>
-                )}
-
-                {response.video_url && (
-                  <div className="rounded-2xl overflow-hidden bg-black aspect-video mt-3">
-                    <video
-                      src={response.video_url}
-                      controls
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
               </div>
             );
           })}
         </div>
       )}
 
-      <p className="text-center text-purple-400 text-xs mt-12">
-        made with love 🤍
-      </p>
+      <p className="text-center text-purple-400 text-xs mt-10">made with love 🤍</p>
     </main>
   );
 }

@@ -149,7 +149,7 @@ export const weeks: WeekData[] = [
     emoji: "🌰",
     sizeDescription: "the size of a fig",
     babyMessage: "I'm almost out of the most risky part of my journey. I made it! My bones are starting to harden. I'm becoming more solid — more real — every single day.",
-    question: "When you close your eyes and imagine holding me for the first time, what do you feel?",
+    question: "What song makes you think about me?",
     babyReply: "I think about that moment too, Mama. I'm going to make it the best moment of your whole life. I've been practicing my face right now — getting it just right for you.",
     smsMessage: "week 11 — we're almost through the hardest part 💪 I made it! come celebrate with me",
     bgFrom: "from-pink-100",

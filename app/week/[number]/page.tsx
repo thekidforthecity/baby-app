@@ -39,8 +39,8 @@ export default async function WeekPage({ params }: PageProps) {
       className={`min-h-screen bg-gradient-to-br ${weekData.bgFrom} ${weekData.bgTo} flex flex-col items-center justify-start py-10 px-4`}
     >
       {/* Week badge */}
-      <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-8">
-        <p className="text-white font-bold text-sm tracking-widest uppercase">
+      <div className="bg-white/50 backdrop-blur-sm border border-purple-200 rounded-full px-5 py-2 mb-8">
+        <p className="text-purple-800 font-bold text-sm tracking-widest uppercase">
           Week {weekNumber}
         </p>
       </div>
@@ -63,7 +63,7 @@ export default async function WeekPage({ params }: PageProps) {
       />
 
       {/* Footer */}
-      <p className="mt-10 text-white/40 text-xs text-center">
+      <p className="mt-10 text-purple-400 text-xs text-center">
         made with love, for you and our little {weekData.size} 🤍
       </p>
     </main>

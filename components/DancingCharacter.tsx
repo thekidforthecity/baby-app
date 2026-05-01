@@ -48,7 +48,7 @@ export default function DancingCharacter({ week, size }: DancingCharacterProps) 
         </div>
       </div>
 
-      <p className="text-white/80 text-sm font-medium tracking-wide uppercase">
+      <p className="text-purple-700 text-sm font-medium tracking-wide uppercase">
         the size of a {size}
       </p>
 

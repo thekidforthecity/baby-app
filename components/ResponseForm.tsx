@@ -192,41 +192,41 @@ export default function ResponseForm({
   }
 
   const progressPct = ((MAX_SECONDS - secondsLeft) / MAX_SECONDS) * 100;
-  const timerColor = secondsLeft <= 10 ? "text-red-300" : "text-white";
+  const timerColor = secondsLeft <= 10 ? "text-red-500" : "text-white";
 
   if (submitted) {
     return (
       <div className="w-full max-w-md mx-auto text-center space-y-5">
         <div className="text-6xl animate-bounce">💌</div>
-        <p className="text-white text-xl font-bold">Saved forever.</p>
-        <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-3xl px-6 py-5">
-          <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p className="text-purple-800 text-xl font-bold">Saved forever.</p>
+        <div className="bg-white/60 backdrop-blur-sm border border-purple-200 rounded-3xl px-6 py-5">
+          <p className="text-purple-500 text-xs font-semibold uppercase tracking-widest mb-3">
             A message from your little one
           </p>
-          <p className="text-white text-base leading-relaxed font-medium">{babyReply}</p>
+          <p className="text-purple-800 text-base leading-relaxed font-medium">{babyReply}</p>
         </div>
-        <p className="text-white/50 text-xs">Your little one will treasure this someday 🤍</p>
+        <p className="text-purple-400 text-xs">Your little one will treasure this someday 🤍</p>
       </div>
     );
   }
 
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
-      <div className="bg-white/10 backdrop-blur-sm rounded-3xl px-6 py-5 border border-white/20">
-        <p className="text-white text-base font-semibold text-center leading-snug">{question}</p>
+      <div className="bg-white/60 backdrop-blur-sm rounded-3xl px-6 py-5 border border-purple-200">
+        <p className="text-purple-800 text-base font-semibold text-center leading-snug">{question}</p>
       </div>
 
       {mode === "idle" && (
         <div className="flex gap-3">
           <button
             onClick={() => setMode("text")}
-            className="flex-1 bg-white/20 hover:bg-white/30 border border-white/30 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+            className="flex-1 bg-white/50 hover:bg-white/70 border border-purple-200 text-purple-800 font-semibold py-4 rounded-2xl transition-all active:scale-95"
           >
             ✍️ Write a message
           </button>
           <button
             onClick={() => setMode("video")}
-            className="flex-1 bg-white/20 hover:bg-white/30 border border-white/30 text-white font-semibold py-4 rounded-2xl transition-all active:scale-95"
+            className="flex-1 bg-white/50 hover:bg-white/70 border border-purple-200 text-purple-800 font-semibold py-4 rounded-2xl transition-all active:scale-95"
           >
             🎥 Record a video
           </button>
@@ -240,19 +240,19 @@ export default function ResponseForm({
             onChange={(e) => setTextValue(e.target.value)}
             placeholder="Write your thoughts here..."
             rows={5}
-            className="w-full bg-white/10 border border-white/30 text-white placeholder-white/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+            className="w-full bg-white/60 border border-purple-200 text-purple-800 placeholder-purple-300 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 resize-none"
           />
           <div className="flex gap-2">
             <button
               onClick={() => setMode("idle")}
-              className="flex-1 bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl transition-all"
+              className="flex-1 bg-white/40 border border-purple-200 text-purple-600 font-semibold py-3 rounded-2xl transition-all"
             >
               Back
             </button>
             <button
               onClick={handleSubmit}
               disabled={!textValue.trim() || submitting}
-              className="flex-1 bg-white text-purple-700 font-bold py-3 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Save ❤️"}
             </button>
@@ -264,18 +264,18 @@ export default function ResponseForm({
         <div className="space-y-3">
           {recordState === "idle" && (
             <>
-              <p className="text-white/70 text-sm text-center">
+              <p className="text-purple-600 text-sm text-center">
                 Up to {MAX_SECONDS} seconds. Your camera will open when you press record.
               </p>
               <button
                 onClick={startRecording}
-                className="w-full bg-red-400/80 hover:bg-red-400 border border-white/30 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
+                className="w-full bg-red-400/80 hover:bg-red-400 border border-red-300 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
               >
                 ● Start Recording
               </button>
               <button
                 onClick={handleBack}
-                className="w-full bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl transition-all"
+                className="w-full bg-white/40 border border-purple-200 text-purple-600 font-semibold py-3 rounded-2xl transition-all"
               >
                 Back
               </button>
@@ -302,7 +302,7 @@ export default function ResponseForm({
               </div>
 
               {/* Progress bar */}
-              <div className="w-full bg-white/20 rounded-full h-1.5">
+              <div className="w-full bg-purple-200 rounded-full h-1.5">
                 <div
                   className="bg-red-400 h-1.5 rounded-full transition-all duration-1000"
                   style={{ width: `${progressPct}%` }}
@@ -311,7 +311,7 @@ export default function ResponseForm({
 
               <button
                 onClick={stopRecording}
-                className="w-full bg-white/20 border-2 border-red-400 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
+                className="w-full bg-white/50 border-2 border-red-400 text-purple-800 font-bold py-4 rounded-2xl transition-all active:scale-95"
               >
                 ⏹ Stop Recording
               </button>
@@ -337,14 +337,14 @@ export default function ResponseForm({
                     setPreviewUrl(existingVideoUrl ?? null);
                     setSecondsLeft(MAX_SECONDS);
                   }}
-                  className="flex-1 bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl"
+                  className="flex-1 bg-white/40 border border-purple-200 text-purple-600 font-semibold py-3 rounded-2xl"
                 >
                   Re-record
                 </button>
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex-1 bg-white text-purple-700 font-bold py-3 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
                 >
                   {submitting ? "Uploading..." : "Save ❤️"}
                 </button>
@@ -355,7 +355,7 @@ export default function ResponseForm({
       )}
 
       {error && (
-        <p className="text-red-300 text-sm text-center bg-red-900/30 rounded-xl px-4 py-2">
+        <p className="text-red-600 text-sm text-center bg-red-100 rounded-xl px-4 py-2">
           {error}
         </p>
       )}

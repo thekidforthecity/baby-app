@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
     const message = await client.messages.create({
-      body: `💌 Week ${weekNumber}!\n\nYour little one is ${weekData.sizeDescription} ${weekData.emoji}\n\nThey have something to say to you:\n${appUrl}/week/${weekNumber}`,
+      body: `${weekData.smsMessage}\n\n${appUrl}/week/${weekNumber}`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: momPhoneNumber,
     });

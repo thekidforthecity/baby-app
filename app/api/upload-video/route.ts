@@ -12,11 +12,13 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createClient();
-    const fileName = `week-${weekNumber}-${Date.now()}.webm`;
+    const ext = file.name.endsWith(".mp4") ? "mp4" : "webm";
+    const contentType = ext === "mp4" ? "video/mp4" : "video/webm";
+    const fileName = `week-${weekNumber}-${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage
       .from("videos")
-      .upload(fileName, file, { contentType: "video/webm", upsert: true });
+      .upload(fileName, file, { contentType, upsert: true });
 
     if (error) throw error;
 
@@ -29,4 +31,4 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export const maxDuration = 60;
+export const maxDuration = 120;

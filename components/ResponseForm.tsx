@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ResponseFormProps {
   weekNumber: number;
@@ -12,6 +12,18 @@ interface ResponseFormProps {
 
 type Mode = "idle" | "text" | "video";
 type RecordState = "idle" | "recording" | "recorded";
+
+const MAX_SECONDS = 90;
+
+function getBestMimeType(): string {
+  const types = [
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+    "video/mp4",
+  ];
+  return types.find((t) => MediaRecorder.isTypeSupported(t)) ?? "";
+}
 
 export default function ResponseForm({
   weekNumber,
@@ -28,43 +40,110 @@ export default function ResponseForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(MAX_SECONDS);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const liveVideoRef = useRef<HTMLVideoElement | null>(null);
+  const playbackVideoRef = useRef<HTMLVideoElement | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Clean up stream and timer when component unmounts
+  useEffect(() => {
+    return () => {
+      stopStream();
+      clearTimer();
+    };
+  }, []);
+
+  function stopStream() {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }
+
+  function clearTimer() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }
+
+  function startCountdown() {
+    setSecondsLeft(MAX_SECONDS);
+    timerRef.current = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          // Auto-stop when time runs out
+          mediaRecorderRef.current?.stop();
+          clearTimer();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
 
   async function startRecording() {
     setError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true,
+      });
+
+      streamRef.current = stream;
+
       if (liveVideoRef.current) {
         liveVideoRef.current.srcObject = stream;
-        liveVideoRef.current.play();
+        await liveVideoRef.current.play().catch(() => {});
       }
+
       chunksRef.current = [];
-      const recorder = new MediaRecorder(stream);
+      const mimeType = getBestMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
+
       recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        const finalMime = mimeType || "video/webm";
+        const blob = new Blob(chunksRef.current, { type: finalMime });
         setVideoBlob(blob);
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
         setRecordState("recorded");
-        stream.getTracks().forEach((t) => t.stop());
+        stopStream();
+        clearTimer();
       };
+
       mediaRecorderRef.current = recorder;
-      recorder.start();
+      // timeslice of 1000ms ensures data is flushed regularly — important for long recordings
+      recorder.start(1000);
       setRecordState("recording");
+      startCountdown();
     } catch {
-      setError("Camera access was denied. Please allow camera access and try again.");
+      setError("Camera access was denied. Please allow camera access in your browser settings and try again.");
     }
   }
 
   function stopRecording() {
-    mediaRecorderRef.current?.stop();
+    clearTimer();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+    }
+  }
+
+  function handleBack() {
+    stopRecording();
+    stopStream();
+    clearTimer();
+    setRecordState("idle");
+    setVideoBlob(null);
+    setPreviewUrl(existingVideoUrl ?? null);
+    setSecondsLeft(MAX_SECONDS);
+    setMode("idle");
   }
 
   async function handleSubmit() {
@@ -74,14 +153,21 @@ export default function ResponseForm({
       let videoUrl: string | null = existingVideoUrl ?? null;
 
       if (videoBlob) {
+        const ext = videoBlob.type.includes("mp4") ? "mp4" : "webm";
         const formData = new FormData();
-        formData.append("file", videoBlob, `week-${weekNumber}.webm`);
+        formData.append("file", videoBlob, `week-${weekNumber}.${ext}`);
         formData.append("weekNumber", String(weekNumber));
+
         const uploadRes = await fetch("/api/upload-video", {
           method: "POST",
           body: formData,
         });
-        if (!uploadRes.ok) throw new Error("Video upload failed");
+
+        if (!uploadRes.ok) {
+          const body = await uploadRes.json().catch(() => ({}));
+          throw new Error(body.error ?? "Video upload failed");
+        }
+
         const { url } = await uploadRes.json();
         videoUrl = url;
       }
@@ -105,6 +191,9 @@ export default function ResponseForm({
     }
   }
 
+  const progressPct = ((MAX_SECONDS - secondsLeft) / MAX_SECONDS) * 100;
+  const timerColor = secondsLeft <= 10 ? "text-red-300" : "text-white";
+
   if (submitted) {
     return (
       <div className="w-full max-w-md mx-auto text-center space-y-5">
@@ -114,9 +203,7 @@ export default function ResponseForm({
           <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-3">
             A message from your little one
           </p>
-          <p className="text-white text-base leading-relaxed font-medium">
-            {babyReply}
-          </p>
+          <p className="text-white text-base leading-relaxed font-medium">{babyReply}</p>
         </div>
         <p className="text-white/50 text-xs">Your little one will treasure this someday 🤍</p>
       </div>
@@ -126,9 +213,7 @@ export default function ResponseForm({
   return (
     <div className="w-full max-w-md mx-auto space-y-4">
       <div className="bg-white/10 backdrop-blur-sm rounded-3xl px-6 py-5 border border-white/20">
-        <p className="text-white text-base font-semibold text-center leading-snug">
-          {question}
-        </p>
+        <p className="text-white text-base font-semibold text-center leading-snug">{question}</p>
       </div>
 
       {mode === "idle" && (
@@ -178,22 +263,55 @@ export default function ResponseForm({
       {mode === "video" && (
         <div className="space-y-3">
           {recordState === "idle" && (
-            <button
-              onClick={startRecording}
-              className="w-full bg-red-400/80 hover:bg-red-400 border border-white/30 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
-            >
-              ● Start Recording
-            </button>
+            <>
+              <p className="text-white/70 text-sm text-center">
+                Up to {MAX_SECONDS} seconds. Your camera will open when you press record.
+              </p>
+              <button
+                onClick={startRecording}
+                className="w-full bg-red-400/80 hover:bg-red-400 border border-white/30 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
+              >
+                ● Start Recording
+              </button>
+              <button
+                onClick={handleBack}
+                className="w-full bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl transition-all"
+              >
+                Back
+              </button>
+            </>
           )}
 
           {recordState === "recording" && (
             <div className="space-y-3">
-              <div className="rounded-2xl overflow-hidden bg-black aspect-video">
-                <video ref={liveVideoRef} muted className="w-full h-full object-cover" />
+              {/* Live preview — mirrored like a selfie camera */}
+              <div className="rounded-2xl overflow-hidden bg-black aspect-video relative">
+                <video
+                  ref={liveVideoRef}
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                  style={{ transform: "scaleX(-1)" }}
+                />
+                {/* Timer overlay */}
+                <div className="absolute top-3 right-3 bg-black/50 rounded-full px-3 py-1">
+                  <span className={`text-sm font-bold tabular-nums ${timerColor}`}>
+                    {secondsLeft}s
+                  </span>
+                </div>
               </div>
+
+              {/* Progress bar */}
+              <div className="w-full bg-white/20 rounded-full h-1.5">
+                <div
+                  className="bg-red-400 h-1.5 rounded-full transition-all duration-1000"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+
               <button
                 onClick={stopRecording}
-                className="w-full bg-white/20 border-2 border-red-400 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 animate-pulse"
+                className="w-full bg-white/20 border-2 border-red-400 text-white font-bold py-4 rounded-2xl transition-all active:scale-95"
               >
                 ⏹ Stop Recording
               </button>
@@ -203,7 +321,13 @@ export default function ResponseForm({
           {recordState === "recorded" && previewUrl && (
             <div className="space-y-3">
               <div className="rounded-2xl overflow-hidden bg-black aspect-video">
-                <video ref={videoRef} src={previewUrl} controls className="w-full h-full object-cover" />
+                <video
+                  ref={playbackVideoRef}
+                  src={previewUrl}
+                  controls
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex gap-2">
                 <button
@@ -211,6 +335,7 @@ export default function ResponseForm({
                     setRecordState("idle");
                     setVideoBlob(null);
                     setPreviewUrl(existingVideoUrl ?? null);
+                    setSecondsLeft(MAX_SECONDS);
                   }}
                   className="flex-1 bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl"
                 >
@@ -221,19 +346,10 @@ export default function ResponseForm({
                   disabled={submitting}
                   className="flex-1 bg-white text-purple-700 font-bold py-3 rounded-2xl transition-all active:scale-95 disabled:opacity-50"
                 >
-                  {submitting ? "Saving..." : "Save ❤️"}
+                  {submitting ? "Uploading..." : "Save ❤️"}
                 </button>
               </div>
             </div>
-          )}
-
-          {recordState === "idle" && (
-            <button
-              onClick={() => setMode("idle")}
-              className="w-full bg-white/10 border border-white/30 text-white/70 font-semibold py-3 rounded-2xl transition-all"
-            >
-              Back
-            </button>
           )}
         </div>
       )}

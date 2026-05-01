@@ -1,33 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import WeekCharacter from "./characters/WeekCharacter";
 
 interface DancingCharacterProps {
-  emoji: string;
+  week: number;
   size: string;
 }
 
-export default function DancingCharacter({ emoji, size }: DancingCharacterProps) {
+export default function DancingCharacter({ week, size }: DancingCharacterProps) {
   const [sparkles, setSparkles] = useState<{ id: number; x: number; y: number; delay: number }[]>([]);
 
   useEffect(() => {
     const generated = Array.from({ length: 8 }, (_, i) => ({
       id: i,
-      x: Math.random() * 200 - 100,
-      y: Math.random() * 200 - 100,
+      x: Math.random() * 160 - 80,
+      y: Math.random() * 160 - 80,
       delay: i * 0.3,
     }));
     setSparkles(generated);
-  }, [emoji]);
+  }, [week]);
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative flex items-center justify-center w-48 h-48">
+      <div className="relative flex items-center justify-center w-56 h-56">
         {/* Sparkles */}
         {sparkles.map((s) => (
           <span
             key={s.id}
-            className="absolute text-2xl animate-ping opacity-70"
+            className="absolute text-xl animate-ping opacity-60"
             style={{
               transform: `translate(${s.x}px, ${s.y}px)`,
               animationDelay: `${s.delay}s`,
@@ -38,15 +39,13 @@ export default function DancingCharacter({ emoji, size }: DancingCharacterProps)
           </span>
         ))}
 
-        {/* Dancing emoji */}
-        <span
-          className="text-9xl select-none drop-shadow-lg"
-          style={{ animation: "dance 1.2s ease-in-out infinite" }}
-          role="img"
-          aria-label={size}
+        {/* Dancing character */}
+        <div
+          className="w-44 h-44 select-none drop-shadow-2xl"
+          style={{ animation: "dance 1.4s ease-in-out infinite" }}
         >
-          {emoji}
-        </span>
+          <WeekCharacter week={week} />
+        </div>
       </div>
 
       <p className="text-white/80 text-sm font-medium tracking-wide uppercase">
@@ -55,14 +54,14 @@ export default function DancingCharacter({ emoji, size }: DancingCharacterProps)
 
       <style jsx>{`
         @keyframes dance {
-          0%   { transform: translateY(0px)   rotate(-6deg)  scale(1.0); }
-          15%  { transform: translateY(-28px) rotate(6deg)   scale(1.12); }
-          30%  { transform: translateY(-14px) rotate(-8deg)  scale(1.06); }
-          45%  { transform: translateY(-32px) rotate(10deg)  scale(1.14); }
-          60%  { transform: translateY(-8px)  rotate(-4deg)  scale(1.02); }
-          75%  { transform: translateY(-22px) rotate(7deg)   scale(1.1); }
-          90%  { transform: translateY(-5px)  rotate(-3deg)  scale(1.01); }
-          100% { transform: translateY(0px)   rotate(-6deg)  scale(1.0); }
+          0%   { transform: translateY(0px)   rotate(-5deg)  scale(1.0); }
+          15%  { transform: translateY(-22px) rotate(5deg)   scale(1.1); }
+          30%  { transform: translateY(-11px) rotate(-7deg)  scale(1.05); }
+          45%  { transform: translateY(-26px) rotate(8deg)   scale(1.12); }
+          60%  { transform: translateY(-7px)  rotate(-3deg)  scale(1.02); }
+          75%  { transform: translateY(-18px) rotate(6deg)   scale(1.08); }
+          90%  { transform: translateY(-4px)  rotate(-2deg)  scale(1.01); }
+          100% { transform: translateY(0px)   rotate(-5deg)  scale(1.0); }
         }
       `}</style>
     </div>

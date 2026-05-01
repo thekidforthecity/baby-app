@@ -46,7 +46,7 @@ export default async function WeekPage({ params }: PageProps) {
       </div>
 
       {/* Dancing character */}
-      <DancingCharacter emoji={weekData.emoji} size={weekData.size} />
+      <DancingCharacter week={weekNumber} size={weekData.size} />
 
       {/* Baby's message */}
       <div className="mt-8 mb-6 w-full max-w-md">

@@ -35,13 +35,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Week data not found" }, { status: 500 });
   }
 
-  const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  try {
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-  const message = await client.messages.create({
-    body: `💌 Week ${weekNumber}!\n\nYour little one is ${weekData.sizeDescription} ${weekData.emoji}\n\nThey have something to say to you:\n${appUrl}/week/${weekNumber}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: momPhoneNumber,
-  });
+    const message = await client.messages.create({
+      body: `💌 Week ${weekNumber}!\n\nYour little one is ${weekData.sizeDescription} ${weekData.emoji}\n\nThey have something to say to you:\n${appUrl}/week/${weekNumber}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: momPhoneNumber,
+    });
 
-  return NextResponse.json({ success: true, messageSid: message.sid, week: weekNumber });
+    return NextResponse.json({ success: true, messageSid: message.sid, week: weekNumber });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Twilio error:", message);
+    return NextResponse.json({ error: "Twilio failed", detail: message }, { status: 500 });
+  }
 }

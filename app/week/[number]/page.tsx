@@ -57,6 +57,7 @@ export default async function WeekPage({ params }: PageProps) {
       <ResponseForm
         weekNumber={weekNumber}
         question={weekData.question}
+        babyReply={weekData.babyReply}
         existingTextResponse={existingResponse?.text_response ?? null}
         existingVideoUrl={existingResponse?.video_url ?? null}
       />

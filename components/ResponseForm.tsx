@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 interface ResponseFormProps {
   weekNumber: number;
   question: string;
+  babyReply: string;
   existingTextResponse?: string | null;
   existingVideoUrl?: string | null;
 }
@@ -15,6 +16,7 @@ type RecordState = "idle" | "recording" | "recorded";
 export default function ResponseForm({
   weekNumber,
   question,
+  babyReply,
   existingTextResponse,
   existingVideoUrl,
 }: ResponseFormProps) {
@@ -105,10 +107,18 @@ export default function ResponseForm({
 
   if (submitted) {
     return (
-      <div className="text-center space-y-3">
-        <div className="text-5xl">💌</div>
-        <p className="text-white text-xl font-semibold">Saved forever.</p>
-        <p className="text-white/70 text-sm">Your little one will treasure this someday.</p>
+      <div className="w-full max-w-md mx-auto text-center space-y-5">
+        <div className="text-6xl animate-bounce">💌</div>
+        <p className="text-white text-xl font-bold">Saved forever.</p>
+        <div className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-3xl px-6 py-5">
+          <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-3">
+            A message from your little one
+          </p>
+          <p className="text-white text-base leading-relaxed font-medium">
+            {babyReply}
+          </p>
+        </div>
+        <p className="text-white/50 text-xs">Your little one will treasure this someday 🤍</p>
       </div>
     );
   }
